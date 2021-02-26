@@ -35,3 +35,13 @@ def course_home_mfe_outline_tab_is_active(course_key):
         course_home_mfe_is_active(course_key) and
         COURSE_HOME_MICROFRONTEND_OUTLINE_TAB.is_enabled(course_key)
     )
+
+
+def course_home_mfe_outline_tab_or_dates_tab_is_active(course_key):
+    return (
+        course_home_mfe_is_active(course_key) and
+        (
+            COURSE_HOME_MICROFRONTEND_OUTLINE_TAB.is_enabled(course_key) or
+            COURSE_HOME_MICROFRONTEND_DATES_TAB.is_enabled(course_key)
+        )
+    )

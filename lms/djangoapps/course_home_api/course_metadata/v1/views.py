@@ -15,6 +15,7 @@ from openedx.core.lib.api.authentication import BearerAuthenticationAllowInactiv
 from common.djangoapps.student.models import CourseEnrollment, UserCelebration
 from lms.djangoapps.course_api.api import course_detail
 from lms.djangoapps.course_home_api.course_metadata.v1.serializers import CourseHomeMetadataSerializer
+from lms.djangoapps.course_home_api.toggles import course_home_mfe_outline_tab_or_dates_tab_is_active
 from lms.djangoapps.courseware.access import has_access
 from lms.djangoapps.courseware.masquerade import setup_masquerade
 from lms.djangoapps.courseware.tabs import get_course_tab_list
@@ -79,10 +80,16 @@ class CourseHomeMetadataView(RetrieveAPIView):
         course = course_detail(request, request.user.username, course_key)
         user_is_enrolled = CourseEnrollment.is_enrolled(request.user, course_key_string)
         browser_timezone = request.query_params.get('browser_timezone', None)
-        celebrations = {
-            'streak_length_to_celebrate': UserCelebration.perform_streak_updates(
+
+        streak_length_to_celebrate = None
+        # Only show the streak celebration on the course home page if the learning mfe is enabled on course home,
+        # since the celebration will not display otherwise.
+        if course_home_mfe_outline_tab_or_dates_tab_is_active(course_key):
+            streak_length_to_celebrate = UserCelebration.perform_streak_updates(
                 request.user, course_key, browser_timezone
             )
+        celebrations = {
+            'streak_length_to_celebrate': streak_length_to_celebrate
         }
         data = {
             'course_id': course.id,

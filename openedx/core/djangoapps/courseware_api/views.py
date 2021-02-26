@@ -206,11 +206,16 @@ class CoursewareMeta:
         Returns a list of celebrations that should be performed.
         """
         browser_timezone = self.request.query_params.get('browser_timezone', None)
+        streak_length_to_celebrate = None
+        # Only show the streak celebration on the courseware if the learning mfe is enabled on the courseware,
+        # since the celebration will not display otherwise.
+        if REDIRECT_TO_COURSEWARE_MICROFRONTEND.is_enabled(self.course_key):
+            streak_length_to_celebrate = UserCelebration.perform_streak_updates(
+                self.effective_user, self.course_key, browser_timezone
+            )
         return {
             'first_section': CourseEnrollmentCelebration.should_celebrate_first_section(self.enrollment_object),
-            'streak_length_to_celebrate': UserCelebration.perform_streak_updates(
-                self.effective_user, self.course_key, browser_timezone
-            ),
+            'streak_length_to_celebrate': streak_length_to_celebrate,
         }
 
     @property
