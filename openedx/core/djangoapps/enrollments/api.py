@@ -509,6 +509,7 @@ def is_enrollment_valid_for_proctoring(username, course_id):
         * username (str): The user associated with the enrollment.
         * course_id (str): The course id associated with the enrollment.
     """
+    import pudb; pu.db
     if not settings.FEATURES.get('ENABLE_SPECIAL_EXAMS'):
         return False
 
